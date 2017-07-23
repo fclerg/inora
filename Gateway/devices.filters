@@ -1,0 +1,10 @@
+# This section allows to rename the name of the device
+# If the mac address ends with an exclamation mark,
+# it will be ignored
+
+[filters]
+D0-87-E2-07-38-BB! = tablet_foo
+C8-BC-C8-D9-57-81 = Laptop_bar
+A0-03-8F-01-85-2D = Zsun
+40-F3-08-87-48-7D! = FrancoisPhone
+

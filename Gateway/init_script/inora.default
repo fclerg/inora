@@ -1,0 +1,5 @@
+# OPTIONS: INORA_HOME, RUNAS, PIDFILE, PYTHONBIN
+
+RUNAS=root
+INORA_HOME=/opt/Gateway
+PIDFILE=/var/run/inora.pid
