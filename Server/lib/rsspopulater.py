@@ -3,6 +3,7 @@
 import datetime
 import os
 import time
+import random
 
 import lib.inoralogger
 
@@ -64,7 +65,8 @@ class RSSPopulater(object):
             f.write('<item>\n')
             f.write('<title>' + eventstring + '</title>\n')
             f.write('<link>http://yahoo.fr</link>\n')
-            f.write('<guid>' + str(ts) + '</guid>\n')
+            # 'guid' must be randomized in addition to the timestamp to avoid side effects
+            f.write('<guid>' + str(ts) + str(random.randint(0, 100)) + '</guid>\n')
             f.write('<pubDate>' + naive_dt.strftime("%a, %d %b %Y %H:%M:%S") + '</pubDate>\n')
             f.write('<description>' + eventstring + '</description>\n')
             f.write('</item>\n')
