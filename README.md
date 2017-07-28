@@ -74,7 +74,7 @@ Here is an example :
 ```
 [filters]
 D0-87-E2-07-38-BB! = tablet_foo
-C8-BC-C8-D9-57-81 = myPhone
+C8-BC-C8-D9-57-81 = iPhone_jeanbar 
 40-F3-08-87-48-7D! = myPhone
 ```
 
