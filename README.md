@@ -56,7 +56,7 @@ sudo chmod +x /etc/default/inora
 
 For Openwrt :
 ```sh
-sudo cp inora/Gateway/init_script/inora.openwrt/etc/init.d/inora
+sudo cp inora/Gateway/init_script/inora.openwrt /etc/init.d/inora
 sudo cp inora/Gateway/init_script/inora.default /etc/default/inora
 sudo chmod +x /etc/init.d/inora
 sudo chmod +x /etc/default/inora
