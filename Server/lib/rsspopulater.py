@@ -51,7 +51,7 @@ class RSSPopulater(object):
         lines = ""
         if not os.path.isfile(self.__filepath):
             with open(self.__filepath, "w+") as f:
-                f.write('''<rss version="2.0"><channel>\n<title>Whoshere</title>\n<link>http://yahoo.fr</link>\n<description>Who is here</description>\n</channel></rss>\n''')
+                f.write('''<rss version="2.0"><channel>\n<title>Inora</title>\n<link>https://github.com/fclerg</link>\n<description>Inora rss feed</description>\n</channel></rss>\n''')
 
         # Messy way to insert lines right before the RSS closing HTML tags '</channel></rss>'
         # Read all the file inorahout the last line ('</channel></rss>') then writes it all again in an empty file
@@ -64,7 +64,7 @@ class RSSPopulater(object):
         with open(self.__filepath, "a") as f:
             f.write('<item>\n')
             f.write('<title>' + eventstring + '</title>\n')
-            f.write('<link>http://yahoo.fr</link>\n')
+            f.write('<link>https://github.com/fclerg</link>\n')
             # 'guid' must be randomized in addition to the timestamp to avoid side effects
             f.write('<guid>' + str(ts) + str(random.randint(0, 100)) + '</guid>\n')
             f.write('<pubDate>' + naive_dt.strftime("%a, %d %b %Y %H:%M:%S") + '</pubDate>\n')
