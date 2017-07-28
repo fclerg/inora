@@ -1,0 +1,73 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          Inora server instance
+# Required-Start:    $local_fs $network $named $time $syslog
+# Required-Stop:     $local_fs $network $named $time $syslog
+# Description:       starts or stops instance of Inora server
+### END INIT INFO
+
+CONFIG=/etc/default/inora
+
+# don't accept config vars from the shell environment
+unset INORA_HOME RUNAS PIDFILE PYTHONBIN
+
+# try loading the configuration file
+[ -r "$CONFIG" ] && . "$CONFIG" \
+        || echo "${CONFIG} unreadable, falling back to default settings" >&2
+
+
+## the defaults
+username=${RUNAS-inora}
+homedir=${INORA_HOME-/opt/inora}
+pidfile=${PIDFILE-/var/run/inora.pid}
+PYTHONBIN=${PYTHON_BIN-/usr/bin/python}
+logfile=`grep log_file_path ${INORA_HOME}/inora.conf |  head -n 1 | sed "s/[^=]*=\(.*\)/\1/"`
+##
+
+SCRIPT=${homedir}/inora_gateway.py
+# basic checks
+([ -x "$PYTHONBIN" ] && [ -f "${homedir}/inora_gateway.py" ]) || {
+        echo "init script setup failed basic sanity checks, aborting!" >&2
+        exit 1;
+}
+
+# check conf file exists
+([ -x "$PYTHONBIN" ] && [ -r "${homedir}/inora.conf" ]) || {
+        echo "Conf file missing or unreadable!" >&2
+        exit 1;
+}
+
+start() {
+  if [ -f ${pidfile} ] && kill -0 $(cat ${pidfile}) > /dev/null 2>&1; then
+    echo 'Service already running' >&2
+    exit 1
+  fi
+  echo 'Starting service…'
+  local CMD="${PYTHONBIN} ${SCRIPT} >> \"$logfile\" 2>&1 & echo \$!"
+  su -c "$CMD" $username > "$pidfile"
+  echo 'Service started'
+}
+
+stop() {
+  if [ ! -f "${pidfile}" ] || ! kill -0 $(cat "${pidfile}"); then
+    echo 'Service not running' >&2
+    exit 1
+  fi
+  echo 'Stopping service…'
+  kill -15 $(cat "${pidfile}") && rm -f "${pidfile}"
+  echo 'Service stopped'
+}
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stop
+    ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+esac
