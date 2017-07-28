@@ -60,7 +60,7 @@ def main():
 
     LOGGING.info('Starting...')
     dictdevices = devicesextractor.SuperHubConnectedDevicesExtractor(router_ip_address, poll_period)
-    wfilter = DeviceFilter('./devices.filters')
+    wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)
         sender.send_https_message(json.dumps(wfilter.filter(json.dumps(dictdevices.get_devices_dict(), indent=2)), indent=2))
