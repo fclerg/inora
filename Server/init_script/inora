@@ -23,7 +23,7 @@ username=${RUNAS-root}
 homedir=${INORA_HOME-/opt/inora}
 pidfile=${PIDFILE-/var/run/inora.pid}
 PYTHONBIN=${PYTHON_BIN-/usr/bin/python}
-logfile=`grep args ${homedir}/inora.conf |  sed "s/.*'\([^']*\)'.*/\1/"`
+logfile=`grep log_file_path ${INORA_HOME}/inora.conf |  head -n 1 | sed "s/[^=]*=\(.*\)/\1/"`
 ##
 
 SCRIPT=$homedir/inora_server.py

@@ -56,10 +56,13 @@ def main():
     get_conf_value('certs_conf', 'enable_truth')
     get_conf_value('certs_conf', 'server_cert_path', isfile=True)
     get_conf_value('certs_conf', 'private_key_path', isfile=True)
+    get_conf_value('handler_file', 'log_file_path', isfile=True)
+    get_conf_value('handler_file', 'max_bytes')
+    get_conf_value('handler_file', 'backup_count')
     get_conf_value('handler_file', 'args')
 
     LOGGING.info('Starting...')
-    dictdevices = devicesextractor.SuperHubConnectedDevicesExtractor(router_ip_address, poll_period)
+    dictdevices = devicesextractor.BboxConnectedDevicesExtractor(router_ip_address, poll_period)
     wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)

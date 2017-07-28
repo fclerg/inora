@@ -58,6 +58,10 @@ def main():
     get_conf_value('certs_conf', 'enable_truth')
     cert_path = get_conf_value('certs_conf', 'server_cert_path', isfile=True)
     key_path = get_conf_value('certs_conf', 'private_key_path', isfile=True)
+    get_conf_value('handler_file', 'log_file_path', isfile=True)
+    get_conf_value('handler_file', 'max_bytes')
+    get_conf_value('handler_file', 'backup_count')
+    get_conf_value('handler_file', 'args')
     LOGGING.info("Starting Server on port:" + server_port)
     rsspopulater = RSSPopulater(web_root + '/' + rss_key)
 
