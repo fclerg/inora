@@ -1,6 +1,7 @@
-Guide for adding the support of a router :
+### Guide for adding the support of a router
 
-Need to create a class in `inora/lib/Gateway/lib/devicesextractor.py`. This class must inherit from `AbstractDevicesExtractor`. This implies having a method called `get_devices_dict` that returns a dictionary with entries like "*&lt;mac-address&gt;:&lt;hostname&gt;*", such as :
+#### Creating an extractor class
+You need to create a class in <span style="color: green">[*<span style="color: black">inora/lib/Gateway/lib/devicesextractor.py*](../Gateway/lib/devicesextractor.py)</span>. This class must inherit from `AbstractDevicesExtractor`. This implies having a method called `get_devices_dict` that returns a dictionary with entries like "*&lt;mac-address&gt;:&lt;hostname&gt;*", such as :
 ```
 {
  "D0-87-E2-07-38-BB": "Device1",
@@ -11,3 +12,12 @@ Need to create a class in `inora/lib/Gateway/lib/devicesextractor.py`. This clas
 
 The AbstractDevicesExtractor class gives access to the router IP and to the poll period between each set of connected hosts retrieval. They can be accessed respectively with :</br>
 `super(<yourNewClassName>, self).get_router_ip()` and `super(<yourNewClassName>, self).get_poll_period()`
+
+#### Adding the router to the extractor factory
+
+In the `ExtractorFactory` class of [*<span style="color: black">inora/lib/Gateway/lib/devicesextractor.py*](../Gateway/lib/devicesextractor.py)</span>, add an *elif* condition to the `factory` method with the newly created router :
+```
+elif type == "<MyNewRouter>":
+    return MyNewRouterClass(router_ip, poll_period)
+```
+Where `MyNewRouter` will be the value for the the `router_type` variable in *inora.conf*.
