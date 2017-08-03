@@ -14,6 +14,20 @@ LOGGING = inoralogger.InoraLogger.get_logger()
 #requests.packages.urllib3.disable_warnings()
 
 
+class ExtractorFactory(object):
+    """
+    Factory to create some devices extractors
+    """
+    @staticmethod
+    def factory(type, router_ip, poll_period):
+        if type == "Livebox2":
+            return LiveboxConnectedDevicesExtractor(router_ip, poll_period)
+        elif type == "BboxFast3504":
+            return BboxConnectedDevicesExtractor(router_ip, poll_period)
+        else:
+            LOGGING.error('Invalid router name in configuration file: %s', type)
+            exit(1)
+
 class AbstractDevicesExtractor:
     """
     Generic type for the scrapping engine that extract the connected devices list
