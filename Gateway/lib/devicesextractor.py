@@ -19,13 +19,15 @@ class ExtractorFactory(object):
     Factory to create some devices extractors
     """
     @staticmethod
-    def factory(type, router_ip, poll_period):
-        if type == "Livebox2":
+    def factory(rtype, router_ip, poll_period):
+        """returns an extractor instance depending on the router type"
+        rtype passed in parameter"""
+        if rtype == "Livebox2":
             return LiveboxConnectedDevicesExtractor(router_ip, poll_period)
-        elif type == "BboxFast3504":
+        elif rtype == "BboxFast3504":
             return BboxConnectedDevicesExtractor(router_ip, poll_period)
         else:
-            LOGGING.error('Invalid router name in configuration file: %s', type)
+            LOGGING.error('Invalid router name in configuration file: %s', rtype)
             exit(1)
 
 class AbstractDevicesExtractor:
