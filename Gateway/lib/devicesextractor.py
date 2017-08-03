@@ -19,13 +19,13 @@ class ExtractorFactory(object):
     Factory to create some devices extractors
     """
     @staticmethod
-    def factory(rtype, router_ip, poll_period):
+    def factory(rtype, router_ip, poll_period, credentials):
         """returns an extractor instance depending on the router type"
         rtype passed in parameter"""
         if rtype == "Livebox2":
-            return LiveboxConnectedDevicesExtractor(router_ip, poll_period)
+            return LiveboxConnectedDevicesExtractor(router_ip, poll_period, credentials)
         elif rtype == "BboxFast3504":
-            return BboxConnectedDevicesExtractor(router_ip, poll_period)
+            return BboxConnectedDevicesExtractor(router_ip, poll_period, credentials)
         else:
             LOGGING.error('Invalid router name in configuration file: %s', rtype)
             exit(1)
@@ -36,9 +36,10 @@ class AbstractDevicesExtractor:
     """
     __metaclass__ = ABCMeta
 
-    def __init__(self, router_ip, poll_period):
+    def __init__(self, router_ip, poll_period, credentials):
         self.__poll_period = poll_period
         self.__router_ip = router_ip
+        self.__router_credentials = credentials
 
     @abstractmethod
     def get_devices_dict(self):
@@ -53,22 +54,24 @@ class AbstractDevicesExtractor:
         """return the router IP address"""
         return self.__router_ip
 
+    def get_credentials(self):
+        """return the router IP address"""
+        return self.__router_credentials
+
 
 class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
     """Extractor class for Livebox API"""
-    USERNAME = 'admin'
-    PASSWORD = '*********'
 
-    def __init__(self, router_ip, poll_period):
-        super(LiveboxConnectedDevicesExtractor, self).__init__(router_ip, poll_period)
+    def __init__(self, router_ip, poll_period, credentials):
+        super(LiveboxConnectedDevicesExtractor, self).__init__(router_ip, poll_period, credentials)
         self.session = requests.Session()
 
     def __auth(self):
         context_id = ""
         # tweak in case of Connection exception
         while True:
-            credentials = {'username': LiveboxConnectedDevicesExtractor.USERNAME, 'password': LiveboxConnectedDevicesExtractor.PASSWORD}
-            LOGGING.debug('Authentication Livebox with User:%s LiveboxIP:%s', LiveboxConnectedDevicesExtractor.USERNAME, super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
+            credentials = {'username': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_login"], 'password': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_password"]}
+            LOGGING.debug('Authentication Livebox with User:%s LiveboxIP:%s', credentials["username"], super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
             try:
                 req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/authenticate', params=credentials)
                 context_id = req.json()['data']['contextID']
@@ -78,13 +81,13 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
                 time.sleep(3)
                 continue
             if not 'contextID' in req.json()['data']:
-                LOGGING.error('Authentication error. User:%s LiveboxIP:%s. Response:%s', LiveboxConnectedDevicesExtractor.USERNAME, super(LiveboxConnectedDevicesExtractor, self).get_router_ip(), str(req.text))
+                LOGGING.error('Authentication error. User:%s LiveboxIP:%s. Response:%s', credentials["username"], super(LiveboxConnectedDevicesExtractor, self).get_router_ip(), str(req.text))
                 print "Retrying to Authent"
                 LOGGING.debug("Retrying to Authent...")
                 time.sleep(3)
                 continue
             break
-        LOGGING.debug("Authentication Successful. User:%s context-id:%s", LiveboxConnectedDevicesExtractor.USERNAME, context_id)
+        LOGGING.debug("Authentication Successful. User:%s context-id:%s", credentials["username"], context_id)
         return context_id
         # print "Response2 : " + pprint.pprint(r.json())
 
@@ -144,11 +147,9 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
 
 class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
     """Extractor class for Bbox F@st3504"""
-    USERNAME = 'admin'
-    PASSWORD = '*********'
 
-    def __init__(self, router_ip, poll_period):
-        super(BboxConnectedDevicesExtractor, self).__init__(router_ip, poll_period)
+    def __init__(self, router_ip, poll_period, credentials):
+        super(BboxConnectedDevicesExtractor, self).__init__(router_ip, poll_period, credentials)
         self.session = requests.Session()
 
     def __auth(self):
@@ -169,7 +170,7 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
             break
 
         while True:
-            credentials = {'password': BboxConnectedDevicesExtractor.PASSWORD, 'remember': 0}
+            credentials = {'password': super(BboxConnectedDevicesExtractor, self).get_credentials()["router_password"], 'remember': 0}
             LOGGING.debug('Authentication Bbox with BboxIP:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip())
             try:
                 req = self.session.post("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/login', params=credentials)

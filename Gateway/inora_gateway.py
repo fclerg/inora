@@ -49,11 +49,14 @@ def get_conf_value(sectionval, optionval, isfile=False):
 
 def main():
     """Launch the Inora Gateway"""
+    credentials = {}
     router_ip_address = get_conf_value('general_conf', 'router_ip')
     server_ip_address = get_conf_value('general_conf', 'server_ip')
     server_port = get_conf_value('general_conf', 'server_port')
     poll_period = get_conf_value('general_conf', 'poll_period')
     router_type = get_conf_value('general_conf', 'router_type')
+    credentials["router_login"] = get_conf_value('general_conf', 'router_login')
+    credentials["router_password"] = get_conf_value('general_conf', 'router_password')
     get_conf_value('certs_conf', 'enable_truth')
     get_conf_value('certs_conf', 'server_cert_path', isfile=True)
     get_conf_value('certs_conf', 'private_key_path', isfile=True)
@@ -62,9 +65,8 @@ def main():
     get_conf_value('handler_file', 'backup_count')
     get_conf_value('handler_file', 'args')
 
-
     LOGGING.info('Starting...')
-    dictdevices = devicesextractor.ExtractorFactory.factory(router_type, router_ip_address, poll_period)
+    dictdevices = devicesextractor.ExtractorFactory.factory(router_type, router_ip_address, poll_period, credentials)
     wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)
