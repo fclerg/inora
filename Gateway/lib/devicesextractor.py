@@ -55,7 +55,7 @@ class AbstractDevicesExtractor:
         return self.__router_ip
 
     def get_credentials(self):
-        """return the router IP address"""
+        """returns a dictionary with the router authenticaton info"""
         return self.__router_credentials
 
 
