@@ -46,9 +46,13 @@ class AbstractDevicesExtractor:
         """return devices dict out of the scrapping"""
         pass
 
-    def get_poll_period(self):
-        """return the poll period (time between each scrapping calls)"""
-        return self.__poll_period
+    def poll_devices_dict(self):
+        """Template method to get the devices dictionary"""
+        LOGGING.debug("Waiting. PollPeriod:%s seconds", str(self.__poll_period))
+        time.sleep(float(self.__poll_period))
+        # Tweak to get the router type in the log line
+        LOGGING.debug("query to %s. IP:%s", self.__class__.__name__.replace("ConnectedDevicesExtractor", ""), self.__router_ip)
+        return self.get_devices_dict()
 
     def get_router_ip(self):
         """return the router IP address"""
@@ -133,14 +137,12 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         return wdict
 
     def get_devices_dict(self):
-        LOGGING.debug("Waiting. PollPeriod:%s seconds", str(super(LiveboxConnectedDevicesExtractor, self).get_poll_period()))
-        time.sleep(float(super(LiveboxConnectedDevicesExtractor, self).get_poll_period()))
         # Since responses from the Livebox are not always consistents, we run few query against it and consider a device
         # is connected if seen in, at least, one of the responses.
         number_of_tries = 4
         devices_dict = {}
         for i in range(number_of_tries):
-            LOGGING.debug('%d/%d query to Livebox. IP:%s', i+1, number_of_tries, super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
+            LOGGING.debug('%d/%d query to Livebox2. IP:%s', i+1, number_of_tries, super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
             devices_dict.update(self.__wifi_devices_dict(self.__get_all_devices(self.__auth())))
             time.sleep(3)
         return devices_dict
@@ -222,7 +224,4 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
 
 
     def get_devices_dict(self):
-        LOGGING.debug("Waiting. PollPeriod:%s seconds", str(super(BboxConnectedDevicesExtractor, self).get_poll_period()))
-        time.sleep(float(super(BboxConnectedDevicesExtractor, self).get_poll_period()))
-        LOGGING.debug('query to Bbox. IP:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip())
         return self.__get_wifi_devices()

@@ -70,7 +70,7 @@ def main():
     wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)
-        sender.send_https_message(json.dumps(wfilter.filter(json.dumps(dictdevices.get_devices_dict(), indent=2)), indent=2))
+        sender.send_https_message(json.dumps(wfilter.filter(json.dumps(dictdevices.poll_devices_dict(), indent=2)), indent=2))
 
 if __name__ == '__main__':
     main()
