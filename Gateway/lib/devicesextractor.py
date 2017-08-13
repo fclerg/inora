@@ -77,9 +77,9 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
             credentials = {'username': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_login"], 'password': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_password"]}
             LOGGING.debug('Authentication Livebox with User:%s LiveboxIP:%s', credentials["username"], super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
             try:
-                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/authenticate', params=credentials)
+                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/authenticate', params=credentials, timeout=20)
                 context_id = req.json()['data']['contextID']
-            except requests.exceptions.ConnectionError as exception:
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to connect..."
                 time.sleep(3)
@@ -99,8 +99,8 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         LOGGING.debug("Loging out. IP : %s", super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
         while True:
             try:
-                self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/logout')
-            except requests.exceptions.ConnectionError as exception:
+                self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/logout', timeout=20)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 LOGGING.info("Retrying to connect...")
                 time.sleep(3)
@@ -116,8 +116,8 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         # tweak in case of Connection exception
         while True:
             try:
-                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/sysbus/Hosts:getDevices', headers=sah_headers, data='{"parameters":{}}')
-            except requests.exceptions.ConnectionError as exception:
+                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/sysbus/Hosts:getDevices', headers=sah_headers, data='{"parameters":{}}', timeout=20)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 LOGGING.info("Retrying to connect...")
                 time.sleep(3)
@@ -158,8 +158,8 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         # tweak in case of Connection exception
         while True:
             try:
-                req = self.session.get("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/login.html')
-            except requests.exceptions.ConnectionError as exception:
+                req = self.session.get("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/login.html', timeout=20)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to get logging page..."
                 time.sleep(3)
@@ -175,8 +175,8 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
             credentials = {'password': super(BboxConnectedDevicesExtractor, self).get_credentials()["router_password"], 'remember': 0}
             LOGGING.debug('Authentication Bbox with BboxIP:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip())
             try:
-                req = self.session.post("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/login', params=credentials)
-            except requests.exceptions.ConnectionError as exception:
+                req = self.session.post("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/login', params=credentials, timeout=20)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to connect..."
                 time.sleep(3)
@@ -197,8 +197,8 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         while True:
             try:
                 millis = int(round(time.time() * 1000))
-                req = self.session.get("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/hosts?_=' + str(millis))
-            except requests.exceptions.ConnectionError as exception:
+                req = self.session.get("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/hosts?_=' + str(millis), timeout=20)
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to get logging page..."
                 time.sleep(3)
