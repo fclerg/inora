@@ -7,7 +7,7 @@ import ConfigParser
 import json
 import os.path
 from inspect import getsourcefile
-import lib.devicesextractor as devicesextractor
+from lib.devicesextractorfactory import DevicesExtractorFactory
 from lib.inoralogger import InoraLogger
 from lib.eventsender import EventSender
 from lib.devicefilter import DeviceFilter
@@ -66,7 +66,7 @@ def main():
     get_conf_value('handler_file', 'args')
 
     LOGGING.info('Starting...')
-    dictdevices = devicesextractor.ExtractorFactory.factory(router_type, router_ip_address, poll_period, credentials)
+    dictdevices = DevicesExtractorFactory.factory(router_type, router_ip_address, poll_period, credentials)
     wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)
