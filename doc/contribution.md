@@ -1,7 +1,7 @@
 ### Guide for adding the support of a router
 
 #### Creating an extractor class
-You need to create a class in <span style="color: green">[*<span style="color: black">inora/lib/Gateway/lib/routers*](../Gateway/lib/router/devicesextractor.py)</span>. This class must inherit from `AbstractDevicesExtractor`. This implies having a method called `get_devices_dict` that returns a dictionary with entries like "*&lt;mac-address&gt;:&lt;hostname&gt;*", such as :
+You need to create a class in <span style="color: green">[*<span style="color: black">inora/lib/Gateway/lib/routers*](../Gateway/lib/routers/)</span>. This class must inherit from `AbstractDevicesExtractor`. This implies having a method called `get_devices_dict` that returns a dictionary with entries like "*&lt;mac-address&gt;:&lt;hostname&gt;*", such as :
 ```
 {
  "D0-87-E2-07-38-BB": "Device1",
