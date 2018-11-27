@@ -1,25 +1,23 @@
-"""
-   Inora Gateway execution main script
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""Inora Gateway execution main script"""
 
-# pylint: disable=line-too-long
 import ConfigParser
 import json
 import os.path
 from inspect import getsourcefile
-from lib.devicesextractorfactory import DevicesExtractorFactory
 from lib.inoralogger import InoraLogger
 from lib.eventsender import EventSender
 from lib.devicefilter import DeviceFilter
-
-
+from lib.routers.liveboxconnecteddevicesextractor import LiveboxConnectedDevicesExtractor
+from lib.routers.bboxconnecteddevicesextractor import BboxConnectedDevicesExtractor
+from lib.routers.superhubconnecteddevicesextractor import SuperHubConnectedDevicesExtractor
 
 ##############################################################################
 #                             LOGGER INIT                                    #
 ##############################################################################
 
 LOGGING = InoraLogger.get_logger()
-
 
 ##############################################################################
 #                             CONF HANDLING                                  #
@@ -31,13 +29,13 @@ def get_conf_value(sectionval, optionval, isfile=False):
     # Tweak to retrieve the path
     conf_path = wconfig.read(os.path.dirname(getsourcefile(lambda: None)) + '/inora.conf')
     if not wconfig.has_option(sectionval, optionval):
-        LOGGING.error('in ' + str(conf_path) + ': section:' + sectionval + ' or option:' + optionval + ' missing')
+        LOGGING.error('in %s: section:%s or option:%s missing', str(conf_path), sectionval, optionval)
         exit(1)
     if isfile:
         if not os.path.isfile(wconfig.get(sectionval, optionval)):  # Check if file exists
-            LOGGING.error(" " + wconfig.get(sectionval, optionval) + " NOT FOUND!")
+            LOGGING.error('%s NOT FOUND!', wconfig.get(sectionval, optionval))
             exit(1)
-    LOGGING.debug('in ' + str(conf_path) + ': section:' + sectionval + ' and option:' + optionval + ' Validated')
+    LOGGING.debug('in %s: section:%s and option:%s Validated', str(conf_path), sectionval, optionval)
     return str(wconfig.get(sectionval, optionval))
 
 
@@ -45,6 +43,17 @@ def get_conf_value(sectionval, optionval, isfile=False):
 #                             Let's get started                              #
 ##############################################################################
 
+def device_extractor_factory(rtype, router_ip, poll_period, credentials):
+    """returns an extractor instance depending on the router type"
+    rtype passed in parameter"""
+    if rtype == "Livebox2":
+        return LiveboxConnectedDevicesExtractor(router_ip, poll_period, credentials)
+    if rtype == "BboxFast3504":
+        return BboxConnectedDevicesExtractor(router_ip, poll_period, credentials)
+    if rtype == "VirginSuperHub":
+        return SuperHubConnectedDevicesExtractor(router_ip, poll_period, credentials)
+    LOGGING.error('Invalid router name in configuration file: %s', rtype)
+    return exit(1)
 
 
 def main():
@@ -66,7 +75,7 @@ def main():
     get_conf_value('handler_file', 'args')
 
     LOGGING.info('Starting...')
-    dictdevices = DevicesExtractorFactory.factory(router_type, router_ip_address, poll_period, credentials)
+    dictdevices = device_extractor_factory(router_type, router_ip_address, poll_period, credentials)
     wfilter = DeviceFilter(os.path.dirname(getsourcefile(lambda: None)) + '/devices.filters')
     while True:
         sender = EventSender(server_ip_address, server_port)

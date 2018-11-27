@@ -1,5 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Lib for handling message sending to the Inora server"""
-# pylint: disable=line-too-long
 import time
 import requests
 import lib.inoralogger

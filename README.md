@@ -39,6 +39,7 @@ It periodically queries the router and send the activity to the Inora Server.
 Routers currently supported are :
 - Livebox 2
 - Bbox F@st3504
+- Virgin SuperHub
 
 #### Prerequisites
 

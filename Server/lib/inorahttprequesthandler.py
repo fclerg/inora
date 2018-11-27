@@ -13,7 +13,7 @@ class inoraHTTPRequestHandler(BaseHTTPRequestHandler):
     """
     def do_POST(self):
         """process http POST requests"""
-        LOGGING.debug("incoming POST request. IP-address:" + self.client_address[0])
+        LOGGING.debug('incoming POST request. IP-address:%s', self.client_address[0])
         content_len = int(self.headers.getheader('Content-Length', 0))
         post_body = self.rfile.read(content_len)
         self.send_response(200)

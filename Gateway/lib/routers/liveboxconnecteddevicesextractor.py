@@ -1,4 +1,5 @@
-# pylint: disable=line-too-long
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Class for making API calls to extract connected devices from a Livebox v2"""
 import time
 import json
@@ -18,10 +19,21 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         context_id = ""
         # tweak in case of Connection exception
         while True:
-            credentials = {'username': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_login"], 'password': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_password"]}
-            LOGGING.debug('Authentication Livebox with User:%s LiveboxIP:%s', credentials["username"], super(LiveboxConnectedDevicesExtractor, self).get_router_ip())
+            credentials = {
+                'username': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_login"], \
+                'password': super(LiveboxConnectedDevicesExtractor, self).get_credentials()["router_password"]
+            }
+            LOGGING.debug(
+                'Authentication Livebox with User:%s LiveboxIP:%s', \
+                credentials["username"], \
+                super(LiveboxConnectedDevicesExtractor, self).get_router_ip()
+            )
             try:
-                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/authenticate', params=credentials, timeout=20)
+                req = self.session.post(
+                    "http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/authenticate', \
+                     params=credentials, \
+                     timeout=20
+                )
                 context_id = req.json()['data']['contextID']
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
@@ -29,7 +41,11 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
                 time.sleep(3)
                 continue
             if not 'contextID' in req.json()['data']:
-                LOGGING.error('Authentication error. User:%s LiveboxIP:%s. Response:%s', credentials["username"], super(LiveboxConnectedDevicesExtractor, self).get_router_ip(), str(req.text))
+                LOGGING.error(
+                    'Authentication error. User:%s LiveboxIP:%s. Response:%s', credentials["username"], \
+                    super(LiveboxConnectedDevicesExtractor, self).get_router_ip(), \
+                    str(req.text)
+                )
                 print "Retrying to Authent"
                 LOGGING.debug("Retrying to Authent...")
                 time.sleep(3)
@@ -60,7 +76,12 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         # tweak in case of Connection exception
         while True:
             try:
-                req = self.session.post("http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/sysbus/Hosts:getDevices', headers=sah_headers, data='{"parameters":{}}', timeout=20)
+                req = self.session.post(
+                    "http://" + super(LiveboxConnectedDevicesExtractor, self).get_router_ip() + '/sysbus/Hosts:getDevices', \
+                    headers=sah_headers, \
+                    data='{"parameters":{}}', \
+                    timeout=20
+                )
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 LOGGING.info("Retrying to connect...")
@@ -74,7 +95,7 @@ class LiveboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         wdict = {}
         LOGGING.debug('Extracting wifi devices subset')
         for device in all_devices_dict['result']['status']:
-            if str(device['active']).strip() is 'True' and str(device['interfaceType']).strip() == '802.11':
+            if str(device['active']).strip() == 'True' and str(device['interfaceType']).strip() == '802.11':
                 LOGGING.debug('Active device. mac:%s hostname:%s', device['physAddress'], device['hostName'])
                 wdict[device['physAddress']] = device['hostName']
         self.__logout()

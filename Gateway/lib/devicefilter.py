@@ -1,8 +1,7 @@
-"""
-Device filtering tools
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""Device filtering tools"""
 
-# pylint: disable=line-too-long
 import ConfigParser
 import json
 import re
@@ -19,9 +18,6 @@ class ArbitraryDict(dict):
     def __keytransform__(self, key):
         return key
 
-    def __init__(self, *args, **kwargs):
-        self.update(*args, **kwargs)
-
     def __getitem__(self, key):
         return dict.__getitem__(self, self.__keytransform__(key))
 
@@ -37,10 +33,10 @@ class ArbitraryDict(dict):
 
 class MacDict(ArbitraryDict):
     """Initiate a type to store mac:devicesname dictionary"""
+
     def __keytransform__(self, key):
         """Take a mac address and replace separators with hyphens"""
         match = re.match(r'([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})(!)?', key)
-        # print 'call'
         if not match:
             raise ValueError("The key must be a valid MAC address format with possible '!' at the end.")
         return key.replace(':', '-').lower()
@@ -51,20 +47,21 @@ class DeviceFilter(object):
         self.__config_file = configfile
 
     @staticmethod
-    def byteify(input):
+    def byteify(var):
         """To get rid of the encoding character when dumping a loaded Json string"""
-        if isinstance(input, dict):
-            return {DeviceFilter.byteify(key): DeviceFilter.byteify(value) for key, value in input.iteritems()}
-        elif isinstance(input, list):
-            return [DeviceFilter.byteify(element) for element in input]
-        elif isinstance(input, unicode):
-            return input.encode('utf-8')
-        return input
+        if isinstance(var, dict):
+            return {DeviceFilter.byteify(key): DeviceFilter.byteify(value) for key, value in var.iteritems()}
+        elif isinstance(var, list):
+            return [DeviceFilter.byteify(element) for element in var]
+        elif isinstance(var, unicode):
+            return var.encode('utf-8')
+        return var
 
     @staticmethod
     def jsonloads_hook(x):
+        """json loads hook"""
         if x.get('_class') is not None:
-            LOGGING.error('LA CLASS ' + x.get('_class'))
+            LOGGING.error('LA CLASS %s', x.get('_class'))
 
         if isinstance(x, MacDict):
             return {k: v for k, v in x.items()}
@@ -87,7 +84,7 @@ class DeviceFilter(object):
         try:
             filtlist = MacDict(config.items('filters'))
         except ValueError:
-            LOGGING.error('Invalid file format: ' + self.__config_file + '. Verify MAC Addresses format in filters section.')
+            LOGGING.error('Invalid file format: %s. Verify MAC Addresses format in filters section.', self.__config_file)
             exit(1)
 
         for mac, name in filtlist.iteritems():
@@ -97,10 +94,10 @@ class DeviceFilter(object):
                 if match.group(1) in devices_dict:
                     # match.group(4) is the possible '!' after the mac address
                     if match.group(4):
-                        LOGGING.debug('Removing from the dict.' + ' Mac:' + match.group(1) + '. Name:"' + name + '"')
+                        LOGGING.debug('Removing from the dict. Mac:%s Name:"%s".', match.group(1), name)
                         del devices_dict[match.group(1)]
                     else:
-                        LOGGING.debug('Updating the dict.' + ' Mac:' + mac + '. Renaming from "' + devices_dict[match.group(1)] + '" to "' + name + '"')
+                        LOGGING.debug('Updating the dict.' + ' Mac:%s. Renaming from "%s" to "%s"', mac, devices_dict[match.group(1)], name)
                         devices_dict[match.group(1)] = name
             else:
                 LOGGING.error('Unknown Error in filter function')

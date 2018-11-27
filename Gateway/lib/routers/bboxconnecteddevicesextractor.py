@@ -1,4 +1,5 @@
-# pylint: disable=line-too-long
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Class for scrapping the bbox web interface to extract connected devices"""
 import time
 import requests
@@ -24,7 +25,11 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
                 time.sleep(3)
                 continue
             if req.status_code != 200:
-                LOGGING.error('Error getting Logging page. BboxIP:%s. Response:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip(), req.status_code)
+                LOGGING.error(
+                    'Error getting Logging page. BboxIP:%s. Response:%s', \
+                    super(BboxConnectedDevicesExtractor, self).get_router_ip(), \
+                    req.status_code
+                )
                 time.sleep(3)
                 continue
             LOGGING.debug('Session initialized. BboxIP:%s. Response:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip(), req.status_code)
@@ -34,7 +39,9 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
             credentials = {'password': super(BboxConnectedDevicesExtractor, self).get_credentials()["router_password"], 'remember': 0}
             LOGGING.debug('Authentication Bbox with BboxIP:%s', super(BboxConnectedDevicesExtractor, self).get_router_ip())
             try:
-                req = self.session.post("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/login', params=credentials, timeout=20)
+                req = self.session.post(
+                    "http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/login', params=credentials, timeout=20
+                )
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to connect..."
@@ -56,14 +63,20 @@ class BboxConnectedDevicesExtractor(AbstractDevicesExtractor):
         while True:
             try:
                 millis = int(round(time.time() * 1000))
-                req = self.session.get("http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/hosts?_=' + str(millis), timeout=20)
+                req = self.session.get(
+                    "http://" + super(BboxConnectedDevicesExtractor, self).get_router_ip() + '/api/v1/hosts?_=' + str(millis), timeout=20
+                )
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exception:
                 LOGGING.error(exception)
                 print "Retrying to get logging page..."
                 time.sleep(3)
                 continue
             if req.status_code != 200:
-                LOGGING.error("Getting bbox json failed. BBOX_ID:%s. BboxIP:%s. Response:%s", self.session.cookies.get('BBOX_ID'), super(BboxConnectedDevicesExtractor, self).get_router_ip(), req.status_code)
+                LOGGING.error(
+                    "Getting bbox json failed. BBOX_ID:%s. BboxIP:%s. Response:%s", \
+                     self.session.cookies.get('BBOX_ID'), \
+                     super(BboxConnectedDevicesExtractor, self).get_router_ip(), req.status_code
+                )
                 print "Retrying to get bbox json..."
                 time.sleep(3)
                 continue

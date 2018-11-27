@@ -10,14 +10,16 @@ You need to create a class in <span style="color: green">[*<span style="color: b
 }
 ```
 
-The AbstractDevicesExtractor class gives access to the router IP and to the poll period between each set of connected hosts retrieval. They can be accessed respectively with :</br>
-`super(<yourNewClassName>, self).get_router_ip()` and `super(<yourNewClassName>, self).get_poll_period()`
+The AbstractDevicesExtractor class gives access to the router IP, its credentials and the poll period between each set of connected hosts retrieval. They can be accessed respectively with :</br>
+`super(<yourNewClassName>, self).get_router_ip()`</br> 
+`super(<yourNewClassName>, self).get_poll_period()`</br>
+`super(<yourNewClassName>, self).get_credentials()["router_login"]` and `super(<yourNewClassName>, self).get_credentials()["router_password"]`
 
 #### Adding the router to the extractor factory
 
-In the `ExtractorFactory` class of [*<span style="color: black">inora/lib/Gateway/lib/devicesextractorfactory.py*](../Gateway/lib/devicesextractorfactory.py)</span>, add an *elif* condition to the `factory` method with the newly created router :
+In the `device_extractor_factory` function of [*<span style="color: black">inora/Gateway/inora_gateway.py*](../Gateway/inora_gateway.py)</span>, add an *if* condition with the newly created router :
 ```
-elif type == "<MyNewRouter>":
+if type == "<MyNewRouter>":
     return MyNewRouterClass(router_ip, poll_period)
 ```
 Where `MyNewRouter` will be the value for the the `router_type` variable in *inora.conf*.
